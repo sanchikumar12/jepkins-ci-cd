@@ -1,0 +1,31 @@
+# Build outputs
+target/
+**/target/
+build/
+**/build/
+
+# IDE and workspace metadata
+.metadata/
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated/
+.sts4-cache/
+
+# Local runtime files
+*.log
+*.pid
+*.tmp
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db

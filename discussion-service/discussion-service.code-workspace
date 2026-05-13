@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../enrollment-service"
+		},
+		{
+			"path": "../lesson-service"
+		},
+		{
+			"path": "../notification-service"
+		},
+		{
+			"path": "../progress-service"
+		}
+	]
+}
