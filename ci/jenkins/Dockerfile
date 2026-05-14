@@ -8,6 +8,7 @@ RUN apt-get update \
        curl \
        git \
        maven \
+       docker-cli \
        docker.io \
     && rm -rf /var/lib/apt/lists/*
 
