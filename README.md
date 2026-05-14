@@ -21,4 +21,6 @@ Edulearn Backend is a Spring Boot microservices backend with service discovery, 
 
 ## CI/CD
 
-The root `Jenkinsfile` builds and tests each service independently so Jenkins can use this repository as a monorepo pipeline.
+The root `Jenkinsfile` builds and tests each service, runs SonarQube analysis, pushes Docker images, updates Helm image tags, and lets ArgoCD deploy the changed chart into Kubernetes.
+
+See [docs/cicd-setup.md](docs/cicd-setup.md) for the Jenkins, SonarQube, DockerHub, Minikube, and ArgoCD setup steps.

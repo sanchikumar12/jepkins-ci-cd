@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/discussion/threads/{threadId}").permitAll()
                         .requestMatchers("/api/discussion/replies**").permitAll()
                         .requestMatchers("/api/discussion/replies/author/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )

@@ -34,6 +34,7 @@ public class SecurityConfig {
 
                 // Authorization rules
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/actuator/**").permitAll()
                         // Allow preview lessons without authentication
                         .requestMatchers("/api/v1/lessons/preview/**","/api/v1/lessons/**").permitAll()
                         // All other requests require authentication

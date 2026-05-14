@@ -1,0 +1,21 @@
+{{- range $serviceName, $service := .Values.services }}
+{{- if $service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "edulearn.fullname" (dict "root" $ "serviceName" $serviceName) }}
+  labels:
+    {{- include "edulearn.labels" (dict "root" $) | nindent 4 }}
+    app.kubernetes.io/component: {{ $serviceName | lower | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $serviceName | lower | quote }}
+  ports:
+    - name: http
+      port: {{ $service.port }}
+      targetPort: http
+---
+{{- end }}
+{{- end }}

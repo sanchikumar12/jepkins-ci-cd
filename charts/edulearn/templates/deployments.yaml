@@ -1,0 +1,59 @@
+{{- range $serviceName, $service := .Values.services }}
+{{- if $service.enabled }}
+{{- $image := index $.Values.images $serviceName }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "edulearn.fullname" (dict "root" $ "serviceName" $serviceName) }}
+  labels:
+    {{- include "edulearn.labels" (dict "root" $) | nindent 4 }}
+    app.kubernetes.io/component: {{ $serviceName | lower | quote }}
+spec:
+  replicas: {{ $service.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+      app.kubernetes.io/component: {{ $serviceName | lower | quote }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+        app.kubernetes.io/component: {{ $serviceName | lower | quote }}
+    spec:
+      {{- with $.Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $serviceName | lower }}
+          image: "{{ $image.repository }}:{{ $image.tag }}"
+          imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $service.port }}
+          env:
+            {{- range $key, $value := $.Values.global.commonEnv }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- range $key, $value := $service.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: "{{ $service.contextPath }}/actuator/health/readiness"
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: "{{ $service.contextPath }}/actuator/health/liveness"
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 6
+---
+{{- end }}
+{{- end }}

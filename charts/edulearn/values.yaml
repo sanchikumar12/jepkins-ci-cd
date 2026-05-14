@@ -1,0 +1,108 @@
+global:
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
+  commonEnv:
+    JWT_SECRET: "mySecretKeyForJWTAuthenticationInEduLearnMicroserviceArchitecture2024SuperSecureKey123!@#"
+    EUREKA_SERVER_URL: "http://edulearn-discovery-server:8761/eureka/"
+    EUREKA_SERVER: "http://edulearn-discovery-server:8761/eureka/"
+    KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+
+images:
+  Discovery-Server:
+    repository: sanchikumar12/discovery-server
+    tag: "latest"
+  auth-service:
+    repository: sanchikumar12/auth-service
+    tag: "latest"
+  course-service:
+    repository: sanchikumar12/course-service
+    tag: "latest"
+  lesson-service:
+    repository: sanchikumar12/lesson-service
+    tag: "latest"
+  enrollment-service:
+    repository: sanchikumar12/enrollment-service
+    tag: "latest"
+  discussion-service:
+    repository: sanchikumar12/discussion-service
+    tag: "latest"
+  notification-service:
+    repository: sanchikumar12/notification-service
+    tag: "latest"
+  payment-service:
+    repository: sanchikumar12/payment-service
+    tag: "latest"
+
+services:
+  Discovery-Server:
+    enabled: true
+    replicaCount: 1
+    port: 8761
+    contextPath: ""
+    env:
+      SERVER_PORT: "8761"
+      EUREKA_INSTANCE_HOSTNAME: "edulearn-discovery-server"
+  auth-service:
+    enabled: true
+    replicaCount: 1
+    port: 8081
+    contextPath: "/api/v1"
+    env:
+      SERVER_PORT: "8081"
+      DB_URL: "jdbc:mysql://mysql:3306/edulearn_auth?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "root"
+  course-service:
+    enabled: true
+    replicaCount: 1
+    port: 8082
+    contextPath: "/api/v1"
+    env:
+      SERVER_PORT: "8082"
+      DB_URL: "jdbc:mysql://mysql:3306/edulearn_course?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "root"
+  lesson-service:
+    enabled: true
+    replicaCount: 1
+    port: 8083
+    contextPath: "/api/v1"
+    env:
+      SERVER_PORT: "8083"
+  enrollment-service:
+    enabled: true
+    replicaCount: 1
+    port: 8084
+    contextPath: "/api/v1"
+    env:
+      SERVER_PORT: "8084"
+      DB_URL: "jdbc:mysql://mysql:3306/edulearn_enrollment?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "root"
+  discussion-service:
+    enabled: true
+    replicaCount: 1
+    port: 8088
+    contextPath: "/api/discussion"
+    env:
+      SERVER_PORT: "8088"
+  notification-service:
+    enabled: true
+    replicaCount: 1
+    port: 8089
+    contextPath: "/api/notifications"
+    env:
+      SERVER_PORT: "8089"
+      DB_URL: "jdbc:mysql://mysql:3306/edulearn_notification?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "root"
+  payment-service:
+    enabled: true
+    replicaCount: 1
+    port: 8086
+    contextPath: "/api/v1"
+    env:
+      SERVER_PORT: "8086"
+      DB_URL: "jdbc:mysql://mysql:3306/edulearn_payment?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "root"

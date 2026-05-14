@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: edulearn
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sanchikumar12/jepkins-ci-cd.git
+    targetRevision: main
+    path: charts/edulearn
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: edulearn
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

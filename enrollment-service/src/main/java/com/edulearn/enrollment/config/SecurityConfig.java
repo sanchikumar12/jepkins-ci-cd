@@ -40,6 +40,7 @@ public class SecurityConfig {
                     })
                 .and()
                 .authorizeHttpRequests()
+                    .requestMatchers("/actuator/**").permitAll()
                     .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

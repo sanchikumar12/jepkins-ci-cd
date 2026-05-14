@@ -35,6 +35,7 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/swagger-resources",
                     "/swagger-resources/**",
+                    "/actuator/**",
                     "/webjars/**",
                     "/auth/all",        // Use this if your URL is /auth/all
                     "/auth/role/**",
