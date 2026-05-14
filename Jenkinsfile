@@ -123,7 +123,7 @@ pipeline {
                 }
                 sh 'chmod +x ci/update-image-tags.sh'
                 sh './ci/update-image-tags.sh "$HELM_VALUES_FILE" "$IMAGE_TAG"'
-                withCredentials([usernamePassword(credentialsId: "${GITHUB_CREDENTIALS_ID}", usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
+                withCredentials([string(credentialsId: "${GITHUB_CREDENTIALS_ID}", variable: 'GIT_TOKEN')]) {
                     sh '''
                         set -eu
                         git config user.email "jenkins@local"
@@ -142,8 +142,8 @@ pipeline {
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
                           git fetch origin "${TARGET_BRANCH}"
                           git rebase "origin/${TARGET_BRANCH}"
-                          git push "https://${GIT_USERNAME}:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH} || \
-                          git push "https://${GIT_USERNAME}:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH}
+                          git push "https://x-access-token:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH} || \
+                          git push "https://x-access-token:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH}
                         fi
                     '''
                 }
