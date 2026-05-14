@@ -31,7 +31,7 @@ Create these global credentials in Jenkins:
 - `dockerhub-token`: DockerHub username/password or access token.
 - `github-token`: GitHub username/token with repository write access.
 
-The pipeline currently uses `sanchikumar12` as the DockerHub namespace. If your DockerHub username is different, update `DOCKERHUB_NAMESPACE` in `Jenkinsfile` and every image repository in `charts/edulearn/values.yaml`.
+The pipeline currently uses `sanchitkumarsingh098931` as the DockerHub namespace. If your DockerHub username is different, update `DOCKERHUB_NAMESPACE` in `Jenkinsfile` and every image repository in `charts/edulearn/values.yaml`.
 
 ## 3. SonarQube
 

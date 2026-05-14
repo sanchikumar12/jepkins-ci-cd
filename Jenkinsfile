@@ -19,7 +19,7 @@ pipeline {
     environment {
         SERVICES = 'Discovery-Server auth-service course-service lesson-service enrollment-service discussion-service notification-service payment-service'
         MAVEN_OPTS = '-Dmaven.test.failure.ignore=false'
-        DOCKERHUB_NAMESPACE = 'sanchikumar12'
+        DOCKERHUB_NAMESPACE = 'sanchitkumarsingh098931'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-token'
         GITHUB_CREDENTIALS_ID = 'github-token'
         SONARQUBE_ENV = 'sonarqube'
