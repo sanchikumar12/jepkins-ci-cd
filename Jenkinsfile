@@ -140,8 +140,22 @@ pipeline {
                           echo "No Helm image tag changes to commit."
                         else
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
-                          git push "https://x-access-token:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH} || \
-                          git push "https://x-access-token:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH}
+                          set +x
+                          ASKPASS_FILE="$(mktemp)"
+                          trap 'rm -f "$ASKPASS_FILE"' EXIT
+                          cat > "$ASKPASS_FILE" <<'EOF'
+#!/usr/bin/env sh
+case "$1" in
+  *Username*) echo "x-access-token" ;;
+  *Password*) echo "$GIT_TOKEN" ;;
+  *) echo "$GIT_TOKEN" ;;
+esac
+EOF
+                          chmod 700 "$ASKPASS_FILE"
+                          set -x
+                          GIT_ASKPASS="$ASKPASS_FILE" GIT_TERMINAL_PROMPT=0 git push "https://${REPO_PATH}" HEAD:${TARGET_BRANCH} || \
+                          GIT_ASKPASS="$ASKPASS_FILE" GIT_TERMINAL_PROMPT=0 git push "https://${REPO_PATH}" HEAD:${TARGET_BRANCH}
+                          rm -f "$ASKPASS_FILE"
                         fi
                     '''
                 }
