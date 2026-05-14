@@ -89,8 +89,15 @@ pipeline {
         stage('Build and Push Docker Images') {
             steps {
                 script {
+                    if (!env.IMAGE_TAG?.trim()) {
+                        env.IMAGE_TAG = sh(
+                            script: 'git rev-parse --short=12 HEAD',
+                            returnStdout: true
+                        ).trim()
+                    }
                     docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS_ID}") {
                         env.SERVICES.split().each { service ->
+                            echo "Building and pushing Docker image for ${service} with tag ${IMAGE_TAG}"
                             def image = docker.build("${DOCKERHUB_NAMESPACE}/${service.toLowerCase()}:${IMAGE_TAG}", "${service}")
                             retry(3) {
                                 image.push()
