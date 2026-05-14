@@ -118,11 +118,13 @@ pipeline {
                 sh './ci/update-image-tags.sh "$HELM_VALUES_FILE" "$IMAGE_TAG"'
                 withCredentials([usernamePassword(credentialsId: "${GITHUB_CREDENTIALS_ID}", usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
                     sh '''
+                        set -eu
                         git config user.email "jenkins@local"
                         git config user.name "Jenkins CI"
                         REPO_URL="$(git config --get remote.origin.url)"
                         REPO_PATH="${REPO_URL#https://}"
                         TARGET_BRANCH="${BRANCH_NAME:-$(git rev-parse --abbrev-ref HEAD)}"
+                        TARGET_BRANCH="${TARGET_BRANCH#origin/}"
                         if [ "$TARGET_BRANCH" = "HEAD" ]; then
                           TARGET_BRANCH="main"
                         fi
@@ -131,6 +133,9 @@ pipeline {
                           echo "No Helm image tag changes to commit."
                         else
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
+                          git fetch origin "${TARGET_BRANCH}"
+                          git rebase "origin/${TARGET_BRANCH}"
+                          git push "https://${GIT_USERNAME}:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH} || \
                           git push "https://${GIT_USERNAME}:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH}
                         fi
                     '''
