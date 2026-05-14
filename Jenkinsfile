@@ -140,8 +140,6 @@ pipeline {
                           echo "No Helm image tag changes to commit."
                         else
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
-                          git fetch origin "${TARGET_BRANCH}"
-                          git rebase "origin/${TARGET_BRANCH}"
                           git push "https://x-access-token:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH} || \
                           git push "https://x-access-token:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH}
                         fi
