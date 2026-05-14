@@ -92,8 +92,12 @@ pipeline {
                     docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS_ID}") {
                         env.SERVICES.split().each { service ->
                             def image = docker.build("${DOCKERHUB_NAMESPACE}/${service.toLowerCase()}:${IMAGE_TAG}", "${service}")
-                            image.push()
-                            image.push('latest')
+                            retry(3) {
+                                image.push()
+                            }
+                            retry(3) {
+                                image.push('latest')
+                            }
                         }
                     }
                 }
