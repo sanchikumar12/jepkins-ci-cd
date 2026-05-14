@@ -2,12 +2,16 @@ package com.edulearn.enrollment.service;
 
 import com.edulearn.enrollment.entity.Enrollment;
 import com.edulearn.enrollment.repository.EnrollmentRepository;
+import com.edulearn.notification.event.NotificationEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +26,15 @@ class EnrollmentServiceImplTest {
 
     @Mock
     private EnrollmentRepository enrollmentRepository;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    private KafkaTemplate<String, NotificationEvent> notificationKafkaTemplate;
+
+    @Mock
+    private RestTemplate restTemplate;
 
     @InjectMocks
     private EnrollmentServiceImpl enrollmentService;
