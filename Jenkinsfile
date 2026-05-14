@@ -105,15 +105,6 @@ pipeline {
         }
 
         stage('Update Helm Image Tags') {
-            when {
-                expression {
-                    def branchName = env.BRANCH_NAME ?: env.GIT_BRANCH ?: sh(
-                        script: 'git rev-parse --abbrev-ref HEAD',
-                        returnStdout: true
-                    ).trim()
-                    return branchName == 'main' || branchName == 'master' || branchName == 'origin/main' || branchName == 'origin/master'
-                }
-            }
             steps {
                 script {
                     if (!env.IMAGE_TAG?.trim()) {
