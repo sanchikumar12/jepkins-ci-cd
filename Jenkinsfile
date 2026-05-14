@@ -106,24 +106,41 @@ pipeline {
 
         stage('Update Helm Image Tags') {
             when {
-                anyOf {
-                    branch 'main'
-                    branch 'master'
+                expression {
+                    def branchName = env.BRANCH_NAME ?: env.GIT_BRANCH ?: sh(
+                        script: 'git rev-parse --abbrev-ref HEAD',
+                        returnStdout: true
+                    ).trim()
+                    return branchName == 'main' || branchName == 'master' || branchName == 'origin/main' || branchName == 'origin/master'
                 }
             }
             steps {
+                script {
+                    if (!env.IMAGE_TAG?.trim()) {
+                        env.IMAGE_TAG = sh(
+                            script: 'git rev-parse --short=12 HEAD',
+                            returnStdout: true
+                        ).trim()
+                    }
+                }
                 sh 'chmod +x ci/update-image-tags.sh'
                 sh './ci/update-image-tags.sh "$HELM_VALUES_FILE" "$IMAGE_TAG"'
                 withCredentials([usernamePassword(credentialsId: "${GITHUB_CREDENTIALS_ID}", usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
                     sh '''
                         git config user.email "jenkins@local"
                         git config user.name "Jenkins CI"
+                        REPO_URL="$(git config --get remote.origin.url)"
+                        REPO_PATH="${REPO_URL#https://}"
+                        TARGET_BRANCH="${BRANCH_NAME:-$(git rev-parse --abbrev-ref HEAD)}"
+                        if [ "$TARGET_BRANCH" = "HEAD" ]; then
+                          TARGET_BRANCH="main"
+                        fi
                         git add "$HELM_VALUES_FILE"
                         if git diff --cached --quiet; then
                           echo "No Helm image tag changes to commit."
                         else
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
-                          git push "https://${GIT_USERNAME}:${GIT_TOKEN}@${GIT_URL#https://}" HEAD:${BRANCH_NAME}
+                          git push "https://${GIT_USERNAME}:${GIT_TOKEN}@${REPO_PATH}" HEAD:${TARGET_BRANCH}
                         fi
                     '''
                 }
@@ -133,7 +150,7 @@ pipeline {
         stage('Archive Artifacts') {
             steps {
                 archiveArtifacts artifacts: '**/target/*.jar, **/target/lib/*.jar', fingerprint: true, allowEmptyArchive: true
-                junit testResults: '**/target/surefire-reports/TEST-*.xml', allowEmptyResults: true
+                archiveArtifacts artifacts: '**/target/surefire-reports/TEST-*.xml', allowEmptyArchive: true
             }
         }
     }
