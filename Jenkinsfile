@@ -153,23 +153,13 @@ pipeline {
                         else
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
                           
-                          # Store credentials in git credential cache to avoid URL encoding issues
+                          # Configure git URL rewriting to inject credentials
                           set +x
-                          {
-                            echo "protocol=https"
-                            echo "host=github.com"
-                            echo "username=${GIT_USERNAME}"
-                            echo "password=${GIT_TOKEN}"
-                          } | git credential approve
-                          
-                          # Push using the stored credentials
+                          git config --global url."https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/".insteadOf "https://github.com/"
                           git push https://github.com/sanchikumar12/jepkins-ci-cd.git HEAD:${TARGET_BRANCH}
                           
-                          # Clean up stored credentials
-                          {
-                            echo "protocol=https"
-                            echo "host=github.com"
-                          } | git credential reject
+                          # Remove the rewritten config
+                          git config --global --unset url."https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/".insteadOf
                           set -x
                         fi
                     '''
