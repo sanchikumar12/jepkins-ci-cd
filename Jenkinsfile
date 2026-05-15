@@ -99,11 +99,25 @@ pipeline {
                         env.SERVICES.split().each { service ->
                             echo "Building and pushing Docker image for ${service} with tag ${IMAGE_TAG}"
                             def image = docker.build("${DOCKERHUB_NAMESPACE}/${service.toLowerCase()}:${IMAGE_TAG}", "${service}")
-                            retry(3) {
-                                image.push()
+                            retry(5) {
+                                try {
+                                    image.push()
+                                } catch (Exception e) {
+                                    echo "Push failed with error: ${e.message}"
+                                    echo "Waiting 30 seconds before retry..."
+                                    sleep(time: 30, unit: 'SECONDS')
+                                    throw e
+                                }
                             }
-                            retry(3) {
-                                image.push('latest')
+                            retry(5) {
+                                try {
+                                    image.push('latest')
+                                } catch (Exception e) {
+                                    echo "Push failed with error: ${e.message}"
+                                    echo "Waiting 30 seconds before retry..."
+                                    sleep(time: 30, unit: 'SECONDS')
+                                    throw e
+                                }
                             }
                         }
                     }
