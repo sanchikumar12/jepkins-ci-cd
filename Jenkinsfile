@@ -142,7 +142,6 @@ pipeline {
                         set -eu
                         git config user.email "jenkins@local"
                         git config user.name "Jenkins CI"
-                        REPO_URL="$(git config --get remote.origin.url)"
                         TARGET_BRANCH="${BRANCH_NAME:-$(git rev-parse --abbrev-ref HEAD)}"
                         TARGET_BRANCH="${TARGET_BRANCH#origin/}"
                         if [ "$TARGET_BRANCH" = "HEAD" ]; then
@@ -153,12 +152,12 @@ pipeline {
                           echo "No Helm image tag changes to commit."
                         else
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
-                          # Convert URL to use token-based authentication
-                          REPO_URL_WITH_TOKEN=$(echo "$REPO_URL" | sed "s|https://|https://x-access-token:${GIT_TOKEN}@|g")
                           
-                          # Push with token in URL (password will not be echoed due to set +x below)
+                          # Use git credential helper to avoid URL encoding issues
                           set +x
-                          git push "$REPO_URL_WITH_TOKEN" HEAD:${TARGET_BRANCH}
+                          export GIT_ASKPASS_OVERRIDE=1
+                          git -c credential.helper='!f() { echo username=x-access-token; echo password=$GIT_TOKEN; }; f' \
+                              push https://github.com/sanchikumar12/jepkins-ci-cd.git HEAD:${TARGET_BRANCH}
                           set -x
                         fi
                     '''
