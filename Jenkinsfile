@@ -137,7 +137,7 @@ pipeline {
                 }
                 sh 'chmod +x ci/update-image-tags.sh'
                 sh './ci/update-image-tags.sh "$HELM_VALUES_FILE" "$IMAGE_TAG"'
-                withCredentials([string(credentialsId: "${GITHUB_CREDENTIALS_ID}", variable: 'GIT_TOKEN')]) {
+                withCredentials([usernamePassword(credentialsId: "${GITHUB_CREDENTIALS_ID}", usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
                     sh '''
                         set -eu
                         git config user.email "jenkins@local"
@@ -158,7 +158,7 @@ pipeline {
                           {
                             echo "protocol=https"
                             echo "host=github.com"
-                            echo "username=x-access-token"
+                            echo "username=${GIT_USERNAME}"
                             echo "password=${GIT_TOKEN}"
                           } | git credential approve
                           
