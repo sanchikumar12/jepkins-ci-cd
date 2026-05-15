@@ -153,13 +153,21 @@ pipeline {
                         else
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
                           
-                          # Configure git URL rewriting to inject credentials
+                          # Create .netrc file for authentication (most reliable method)
                           set +x
-                          git config --global url."https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/".insteadOf "https://github.com/"
+                          NETRC="${HOME}/.netrc"
+                          cat > "$NETRC" <<EOF
+machine github.com
+login ${GIT_USERNAME}
+password ${GIT_TOKEN}
+EOF
+                          chmod 600 "$NETRC"
+                          
+                          # Push using .netrc authentication
                           git push https://github.com/sanchikumar12/jepkins-ci-cd.git HEAD:${TARGET_BRANCH}
                           
-                          # Remove the rewritten config
-                          git config --global --unset url."https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/".insteadOf
+                          # Clean up .netrc
+                          rm -f "$NETRC"
                           set -x
                         fi
                     '''
