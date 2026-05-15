@@ -153,11 +153,23 @@ pipeline {
                         else
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
                           
-                          # Use git credential helper to avoid URL encoding issues
+                          # Store credentials in git credential cache to avoid URL encoding issues
                           set +x
-                          export GIT_ASKPASS_OVERRIDE=1
-                          git -c credential.helper='!f() { echo username=x-access-token; echo password=$GIT_TOKEN; }; f' \
-                              push https://github.com/sanchikumar12/jepkins-ci-cd.git HEAD:${TARGET_BRANCH}
+                          {
+                            echo "protocol=https"
+                            echo "host=github.com"
+                            echo "username=x-access-token"
+                            echo "password=${GIT_TOKEN}"
+                          } | git credential approve
+                          
+                          # Push using the stored credentials
+                          git push https://github.com/sanchikumar12/jepkins-ci-cd.git HEAD:${TARGET_BRANCH}
+                          
+                          # Clean up stored credentials
+                          {
+                            echo "protocol=https"
+                            echo "host=github.com"
+                          } | git credential reject
                           set -x
                         fi
                     '''
