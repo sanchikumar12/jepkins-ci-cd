@@ -8,7 +8,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'RUN_SMOKE_TESTS', defaultValue: true, description: 'Run tests named *Smoke* after the full Maven verification stage.')
-        booleanParam(name: 'FAST_HELM_UPDATE_TEST', defaultValue: false, description: 'Skip smoke, SonarQube, Docker image push, and jump to Helm tag update after the full Maven verification stage.')
+        booleanParam(name: 'FAST_HELM_UPDATE_TEST', defaultValue: false, description: 'Skip build/test, smoke, SonarQube, quality gate, and Docker image push, then jump straight to Helm tag update after checkout.')
     }
 
     environment {
@@ -35,6 +35,9 @@ pipeline {
         }
 
         stage('Build and Test Services') {
+            when {
+                expression { return !params.FAST_HELM_UPDATE_TEST }
+            }
             steps {
                 script {
                     env.SERVICES.split().each { service ->
