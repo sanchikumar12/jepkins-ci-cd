@@ -8,6 +8,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'RUN_SMOKE_TESTS', defaultValue: true, description: 'Run tests named *Smoke* after the full Maven verification stage.')
+        booleanParam(name: 'FAST_HELM_UPDATE_TEST', defaultValue: false, description: 'Skip smoke, SonarQube, Docker image push, and jump to Helm tag update after the full Maven verification stage.')
     }
 
     environment {
@@ -47,7 +48,7 @@ pipeline {
 
         stage('Smoke Tests') {
             when {
-                expression { return params.RUN_SMOKE_TESTS }
+                expression { return params.RUN_SMOKE_TESTS && !params.FAST_HELM_UPDATE_TEST }
             }
             steps {
                 script {
@@ -61,6 +62,9 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
+            when {
+                expression { return !params.FAST_HELM_UPDATE_TEST }
+            }
             steps {
                 withSonarQubeEnv("${SONARQUBE_ENV}") {
                     script {
@@ -79,6 +83,9 @@ pipeline {
         }
 
         stage('Quality Gate') {
+            when {
+                expression { return !params.FAST_HELM_UPDATE_TEST }
+            }
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
@@ -87,6 +94,9 @@ pipeline {
         }
 
         stage('Build and Push Docker Images') {
+            when {
+                expression { return !params.FAST_HELM_UPDATE_TEST }
+            }
             steps {
                 script {
                     if (!env.IMAGE_TAG?.trim()) {
