@@ -143,7 +143,6 @@ pipeline {
                         git config user.email "jenkins@local"
                         git config user.name "Jenkins CI"
                         REPO_URL="$(git config --get remote.origin.url)"
-                        REPO_PATH="${REPO_URL#https://}"
                         TARGET_BRANCH="${BRANCH_NAME:-$(git rev-parse --abbrev-ref HEAD)}"
                         TARGET_BRANCH="${TARGET_BRANCH#origin/}"
                         if [ "$TARGET_BRANCH" = "HEAD" ]; then
@@ -154,22 +153,13 @@ pipeline {
                           echo "No Helm image tag changes to commit."
                         else
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
+                          # Convert URL to use token-based authentication
+                          REPO_URL_WITH_TOKEN=$(echo "$REPO_URL" | sed "s|https://|https://x-access-token:${GIT_TOKEN}@|g")
+                          
+                          # Push with token in URL (password will not be echoed due to set +x below)
                           set +x
-                          ASKPASS_FILE="$(mktemp)"
-                          trap 'rm -f "$ASKPASS_FILE"' EXIT
-                          cat > "$ASKPASS_FILE" <<'EOF'
-#!/usr/bin/env sh
-case "$1" in
-  *Username*) echo "x-access-token" ;;
-  *Password*) echo "$GIT_TOKEN" ;;
-  *) echo "$GIT_TOKEN" ;;
-esac
-EOF
-                          chmod 700 "$ASKPASS_FILE"
+                          git push "$REPO_URL_WITH_TOKEN" HEAD:${TARGET_BRANCH}
                           set -x
-                          GIT_ASKPASS="$ASKPASS_FILE" GIT_TERMINAL_PROMPT=0 git push "https://${REPO_PATH}" HEAD:${TARGET_BRANCH} || \
-                          GIT_ASKPASS="$ASKPASS_FILE" GIT_TERMINAL_PROMPT=0 git push "https://${REPO_PATH}" HEAD:${TARGET_BRANCH}
-                          rm -f "$ASKPASS_FILE"
                         fi
                     '''
                 }
