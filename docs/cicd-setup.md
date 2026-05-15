@@ -29,7 +29,7 @@ Install these Jenkins plugins:
 Create these global credentials in Jenkins:
 
 - `dockerhub-token`: DockerHub username/password or access token.
-- `github-token`: GitHub username/token with repository write access.
+- `github-token`: Username with password/token credential. Use your GitHub username as the username and a personal access token with repository write access as the password. Do not use the Jenkins `admin` username or Jenkins admin password here; those credentials only log in to Jenkins and cannot push to GitHub.
 
 The pipeline currently uses `sanchitkumarsingh098931` as the DockerHub namespace. If your DockerHub username is different, update `DOCKERHUB_NAMESPACE` in `Jenkinsfile` and every image repository in `charts/edulearn/values.yaml`.
 

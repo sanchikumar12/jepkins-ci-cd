@@ -140,6 +140,11 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: "${GITHUB_CREDENTIALS_ID}", usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_TOKEN')]) {
                     sh '''
                         set -eu
+                        if [ "${GIT_USERNAME}" = "admin" ]; then
+                          echo "ERROR: Jenkins credential '${GITHUB_CREDENTIALS_ID}' is using the Jenkins admin username."
+                          echo "The Helm update stage pushes to GitHub, so '${GITHUB_CREDENTIALS_ID}' must use your GitHub username and a GitHub personal access token with repo write access."
+                          exit 1
+                        fi
                         git config user.email "jenkins@local"
                         git config user.name "Jenkins CI"
                         TARGET_BRANCH="${BRANCH_NAME:-$(git rev-parse --abbrev-ref HEAD)}"
@@ -153,21 +158,24 @@ pipeline {
                         else
                           git commit -m "ci: update image tags to ${IMAGE_TAG}"
                           
-                          # Create .netrc file for authentication (most reliable method)
+                          # Use an askpass helper so git can authenticate in Jenkins without an interactive prompt.
                           set +x
-                          NETRC="${HOME}/.netrc"
-                          cat > "$NETRC" <<EOF
-machine github.com
-login ${GIT_USERNAME}
-password ${GIT_TOKEN}
+                          ASKPASS="$(mktemp)"
+                          cat > "$ASKPASS" <<'EOF'
+#!/usr/bin/env sh
+case "$1" in
+  *Username*) printf '%s\n' "$GIT_USERNAME" ;;
+  *Password*) printf '%s\n' "$GIT_TOKEN" ;;
+esac
 EOF
-                          chmod 600 "$NETRC"
+                          chmod 700 "$ASKPASS"
+                          trap 'rm -f "$ASKPASS"' EXIT
                           
-                          # Push using .netrc authentication
+                          export GIT_ASKPASS="$ASKPASS"
+                          export GIT_TERMINAL_PROMPT=0
+                          export GIT_USERNAME
+                          export GIT_TOKEN
                           git push https://github.com/sanchikumar12/jepkins-ci-cd.git HEAD:${TARGET_BRANCH}
-                          
-                          # Clean up .netrc
-                          rm -f "$NETRC"
                           set -x
                         fi
                     '''
