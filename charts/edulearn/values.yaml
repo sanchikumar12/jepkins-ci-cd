@@ -10,28 +10,28 @@ global:
 images:
   Discovery-Server:
     repository: sanchitkumarsingh098931/discovery-server
-    tag: "cbff124a490e"
+    tag: "3f75a0d9fb5c"
   auth-service:
     repository: sanchitkumarsingh098931/auth-service
-    tag: "cbff124a490e"
+    tag: "3f75a0d9fb5c"
   course-service:
     repository: sanchitkumarsingh098931/course-service
-    tag: "cbff124a490e"
+    tag: "3f75a0d9fb5c"
   lesson-service:
     repository: sanchitkumarsingh098931/lesson-service
-    tag: "cbff124a490e"
+    tag: "3f75a0d9fb5c"
   enrollment-service:
     repository: sanchitkumarsingh098931/enrollment-service
-    tag: "cbff124a490e"
+    tag: "3f75a0d9fb5c"
   discussion-service:
     repository: sanchitkumarsingh098931/discussion-service
-    tag: "cbff124a490e"
+    tag: "3f75a0d9fb5c"
   notification-service:
     repository: sanchitkumarsingh098931/notification-service
-    tag: "cbff124a490e"
+    tag: "3f75a0d9fb5c"
   payment-service:
     repository: sanchitkumarsingh098931/payment-service
-    tag: "cbff124a490e"
+    tag: "3f75a0d9fb5c"
 
 services:
   Discovery-Server:
